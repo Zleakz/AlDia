@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Ver resúmenes</title>
+</head>
+<body>
+    <h1>Mis resúmenes</h1>
+
+    {% if resumenes %}
+        <table border="1" cellpadding="10">
+            <thead>
+                <tr>
+                    <th>Tarjeta</th>
+                    <th>Fecha de cierre</th>
+                    <th>Fecha de vencimiento</th>
+                    <th>Monto total</th>
+                    <th>Monto mínimo</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for resumen in resumenes %}
+                    <tr>
+                        <td>{{ resumen.identificacion_tarjeta }}</td>
+                        <td>{{ resumen.fecha_cierre|date:"d/m/Y" }}</td>
+                        <td>{{ resumen.fecha_vencimiento|date:"d/m/Y" }}</td>
+                        <td>${{ resumen.monto_total }}</td>
+                        <td>${{ resumen.monto_minimo }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Todavía no tenés resúmenes registrados.</p>
+    {% endif %}
+
+    <p><a href="{% url 'registrar_resumen' %}">Registrar otro resumen</a></p>
+    <p><a href="{% url 'inicio' %}">Volver al inicio</a></p>
+</body>
+</html>
