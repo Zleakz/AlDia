@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Inicio</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav {
+            margin-top: 15px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .bienvenida {
+            margin-bottom: 35px;
+        }
+
+        .opciones {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 220px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .boton {
+            display: inline-block;
+            background-color: #176b45;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .boton:hover {
+            background-color: #105536;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>AlDía</h1>
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="{% url 'registrar_resumen' %}">Registrar resumen</a>
+            <a href="{% url 'ver_resumenes' %}">Ver resúmenes</a>
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+    {% for message in messages %}
+        <p style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 6px;">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
+        <section class="bienvenida">
+            <h2>¡Bienvenido a AlDía!</h2>
+            <p>Gestioná tus resúmenes de tarjetas de crédito de manera sencilla.</p>
+        </section>
+
+        <section class="opciones">
+            <article class="tarjeta">
+                <h3>Registrar resumen</h3>
+                <p>Cargá las fechas de cierre y vencimiento, junto con los importes de tu tarjeta.</p>
+                <a class="boton" href="{% url 'registrar_resumen' %}">Registrar</a>
+            </article>
+
+            <article class="tarjeta">
+                <h3>Ver resúmenes</h3>
+                <p>Consultá los resúmenes que hayas registrado y sus principales datos.</p>
+                <a class="boton" href="{% url 'ver_resumenes' %}">Consultar</a>
+            </article>
+        </section>
+    </main>
+</body>
+</html>
