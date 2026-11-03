@@ -7,9 +7,17 @@
     <title>AlDía | Registrar resumen</title>
 </head>
 <body>
+
     <h1>Registrar resumen</h1>
 
-    <form method="post">
+    {% if datos_extraidos %}
+        <p>
+            Los datos se extrajeron correctamente del PDF.
+            Revisalos y completá el nombre de la tarjeta antes de guardar.
+        </p>
+    {% endif %}
+
+    <form method="post" action="{% url 'registrar_resumen' %}">
         {% csrf_token %}
 
         {{ form.as_p }}
@@ -17,6 +25,9 @@
         <button type="submit">Guardar resumen</button>
     </form>
 
-    <a href="/">Volver al inicio</a>
+    <p>
+        <a href="{% url 'inicio' %}">Volver al inicio</a>
+    </p>
+
 </body>
 </html>

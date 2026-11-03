@@ -1,20 +1,75 @@
 from django.db import models
 
+
 class Resumen(models.Model):
     identificacion_tarjeta = models.CharField(max_length=50)
+    banco = models.CharField(
+        max_length=50,
+        blank=True,
+        default=""
+    )
+
+    tipo_tarjeta = models.CharField(
+        max_length=50,
+        blank=True,
+        default=""
+    )
     fecha_cierre = models.DateField()
     fecha_vencimiento = models.DateField()
+    fecha_proximo_cierre = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    fecha_proximo_vencimiento = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    # Importes originales
     monto_total = models.DecimalField(max_digits=12, decimal_places=2)
     monto_minimo = models.DecimalField(max_digits=12, decimal_places=2)
 
+    # Importes en pesos argentinos
+    monto_total_pesos = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    monto_minimo_pesos = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    # Importes en dólares estadounidenses
+    monto_total_dolares = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    monto_minimo_dolares = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
-        return f"Resumen {self.identificacion_tarjeta} - {self.fecha_vencimiento}"
+        return (
+            f"Resumen {self.identificacion_tarjeta} "
+            f"- {self.fecha_vencimiento}"
+        )
 
 
 class Pago(models.Model):
     fecha_pago = models.DateField()
     monto_pago = models.DecimalField(max_digits=12, decimal_places=2)
     tipo_pago = models.CharField(max_length=10)
+
     resumen = models.OneToOneField(
         Resumen,
         on_delete=models.CASCADE,
@@ -30,6 +85,7 @@ class Cuota(models.Model):
     numero_cuota = models.PositiveIntegerField()
     total_cuotas = models.PositiveIntegerField()
     monto_cuota = models.DecimalField(max_digits=12, decimal_places=2)
+
     resumen = models.ForeignKey(
         Resumen,
         on_delete=models.CASCADE,
@@ -37,4 +93,7 @@ class Cuota(models.Model):
     )
 
     def __str__(self):
-        return f"{self.descripcion_compra} - Cuota {self.numero_cuota}/{self.total_cuotas}"
+        return (
+            f"{self.descripcion_compra} - "
+            f"Cuota {self.numero_cuota}/{self.total_cuotas}"
+        )
