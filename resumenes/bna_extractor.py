@@ -40,22 +40,27 @@ def convertir_importe(importe_texto):
     return Decimal(importe_limpio)
 
 
+
+
 def extraer_fechas_bna(texto):
     patrones = {
         "fecha_estado_cuenta": (
-            r"Estado de cuenta al\s*:\s*(\d{2}-[A-Za-z]{3}-\d{2})"
+            r"Estado de cuenta al\s*:\s*(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
         "fecha_vencimiento": (
-            r"Vencimiento actual\s*:\s*(\d{2}-[A-Za-z]{3}-\d{2})"
+            r"VENCIMIENTO\s+SALDO\s+\$\s+SALDO\s+U\$S\s+"
+            r"PAGO MIN\.\s+\$\s+PAGO MIN\.\s+U\$S\s+"
+            r"(\d{2}\s+[A-Za-z]{3}\s+\d{2})"
         ),
         "cierre_anterior": (
-            r"Cierre Anterior\s*:\s*(\d{2}-[A-Za-z]{3}-\d{2})"
+            r"Cierre Anterior\s*:?\s*(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
         "fecha_proximo_cierre": (
-            r"Pr[oó]ximo Cierre\s*:\s*(\d{2}-[A-Za-z]{3}-\d{2})"
+            r"Pr[oó]ximo Cierre\s*:?\s*(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
         "fecha_proximo_vencimiento": (
-            r"Pr[oó]ximo Vencimiento\s*:\s*(\d{2}-[A-Za-z]{3}-\d{2})"
+            r"(?:Pr[oó]ximo Vencimiento|Pr[oó]ximo Vto\.?)\s*:?\s*"
+            r"(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
     }
 
@@ -65,39 +70,79 @@ def extraer_fechas_bna(texto):
         resultado = re.search(patron, texto, re.IGNORECASE)
 
         if resultado:
-            fechas[campo] = convertir_fecha(resultado.group(1))
+            fecha_normalizada = re.sub(r"[- ]+", "-", resultado.group(1))
+            fechas[campo] = convertir_fecha(fecha_normalizada)
         else:
             fechas[campo] = None
 
     return fechas
 
 
+
+
 def extraer_importes_bna(texto):
-    patrones = {
-        "monto_total_pesos": (
-            r"Saldo Actual:\s*\$\s*([\d.]+,\d{2})"
-        ),
-        "monto_total_dolares": (
-            r"Saldo Actual:.*?U\$S\s*([\d.]+,\d{2})"
-        ),
-        "monto_minimo_pesos": (
-            r"Pago Minimo:\s*\$\s*([\d.]+,\d{2})"
-        ),
+    importes = {
+        "monto_total_pesos": None,
+        "monto_total_dolares": None,
+        "monto_minimo_pesos": None,
+        "monto_minimo_dolares": None,
     }
 
-    importes = {}
+    # Formato Visa: ambos importes aparecen en la misma línea.
+    patron_saldo_visa = (
+        r"SALDO ACTUAL\s*:?\s*\$?\s*"
+        r"([\d.]+,\d{2})\s+([\d.]+,\d{2})"
+    )
 
-    for campo, patron in patrones.items():
-        resultado = re.search(patron, texto, re.IGNORECASE)
+    resultado = re.search(patron_saldo_visa, texto, re.IGNORECASE)
 
-        if resultado:
-            importes[campo] = convertir_importe(resultado.group(1))
-        else:
-            importes[campo] = None
+    if resultado:
+        importes["monto_total_pesos"] = convertir_importe(
+            resultado.group(1)
+        )
+        importes["monto_total_dolares"] = convertir_importe(
+            resultado.group(2)
+        )
+    else:
+        # Formato anterior: compatibilidad con Mastercard.
+        patrones = {
+            "monto_total_pesos": (
+                r"Saldo Actual:\s*\$\s*([\d.]+,\d{2})"
+            ),
+            "monto_total_dolares": (
+                r"Saldo Actual:.*?U\$S\s*([\d.]+,\d{2})"
+            ),
+        }
 
-    importes["monto_minimo_dolares"] = None
+        for campo, patron in patrones.items():
+            resultado = re.search(patron, texto, re.IGNORECASE)
+
+            if resultado:
+                importes[campo] = convertir_importe(
+                    resultado.group(1)
+                )
+
+    # Pago mínimo: admite ambos formatos.
+    patron_minimo = (
+        r"PAGO MINIMO\s*:?\s*\$?\s*([\d.]+,\d{2})"
+    )
+
+    resultado = re.search(patron_minimo, texto, re.IGNORECASE)
+
+    if not resultado:
+        resultado = re.search(
+            r"Pago Minimo:\s*\$\s*([\d.]+,\d{2})",
+            texto,
+            re.IGNORECASE
+        )
+
+    if resultado:
+        importes["monto_minimo_pesos"] = convertir_importe(
+            resultado.group(1)
+        )
 
     return importes
+
 
 
 def extraer_tarjeta_bna(texto):

@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Crear cuenta</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        main {
+            max-width: 450px;
+            margin: 60px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #176b45;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 18px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #176b45;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        a {
+            color: #176b45;
+        }
+
+        .errorlist {
+            color: #b42318;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>Crear cuenta en AlDía</h1>
+        <p>Completá tus datos para comenzar.</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit">Registrarme</button>
+        </form>
+
+        <p>¿Ya tenés una cuenta? <a href="{% url 'login' %}">Iniciá sesión</a></p>
+
+        <a href="{% url 'inicio' %}">Volver al inicio</a>
+    </main>
+</body>
+</html>

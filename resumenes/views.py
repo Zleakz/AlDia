@@ -1,23 +1,26 @@
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 
 from .forms import ResumenForm, PDFUploadForm
 from .models import Resumen
 from .pdf_extractor import extraer_texto_pdf
 from .bna_extractor import extraer_resumen_bna
 
-
 def inicio(request):
     return render(request, "resumenes/inicio.html")
 
-
+@login_required
 def registrar_resumen(request):
     if request.method == "POST":
         form = ResumenForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            resumen = form.save(commit=False)
+            resumen.usuario = request.user
+            resumen.save()
             messages.success(request, "¡Tus datos se guardaron con éxito!")
             return redirect("inicio")
     else:
@@ -27,15 +30,15 @@ def registrar_resumen(request):
         "form": form
     })
 
-
+@login_required
 def ver_resumenes(request):
-    resumenes = Resumen.objects.all()
+    resumenes = Resumen.objects.filter(usuario=request.user)
 
     return render(request, "resumenes/ver_resumenes.html", {
         "resumenes": resumenes
     })
 
-
+@login_required
 def cargar_pdf_resumen(request):
     if request.method == "POST":
         form = PDFUploadForm(request.POST, request.FILES)
@@ -86,3 +89,60 @@ def cargar_pdf_resumen(request):
     return render(request, "resumenes/cargar_pdf.html", {
         "form": form
     })
+
+def registrar_usuario(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+
+        if form.is_valid():
+            usuario = form.save()
+            login(request, usuario)
+
+            messages.success(
+                request,
+                "¡Tu cuenta fue creada correctamente!"
+            )
+
+            return redirect("inicio")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "resumenes/registro.html", {
+        "form": form
+    })
+
+from django.contrib.auth.forms import AuthenticationForm
+
+
+def iniciar_sesion(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+
+        if form.is_valid():
+            usuario = form.get_user()
+            login(request, usuario)
+
+            messages.success(
+                request,
+                "¡Iniciaste sesión correctamente!"
+            )
+
+            return redirect("inicio")
+    else:
+        form = AuthenticationForm()
+
+    return render(request, "resumenes/login.html", {
+        "form": form
+    })
+
+
+def cerrar_sesion(request):
+    logout(request)
+
+    messages.success(
+        request,
+        "Cerraste sesión correctamente."
+    )
+
+    return redirect("inicio")
+
