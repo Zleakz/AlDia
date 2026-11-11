@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Confirmación de pago</title>
+</head>
+<body>
+
+    {% if modificado %}
+        <h1>¡Pago modificado correctamente!</h1>
+        <p>Los cambios se guardaron con éxito.</p>
+    {% else %}
+        <h1>¡Pago registrado correctamente!</h1>
+        <p>El pago se guardó con éxito.</p>
+    {% endif %}
+
+    <h2>Detalle del pago</h2>
+
+    <p><strong>Tarjeta:</strong> {{ resumen.identificacion_tarjeta }}</p>
+
+    <p><strong>Fecha de pago:</strong>
+        {{ pago.fecha_pago|date:"d/m/Y" }}
+    </p>
+
+    <p><strong>Tipo de pago:</strong>
+        {% if pago.tipo_pago == "total" %}
+            Pago total
+        {% elif pago.tipo_pago == "minimo" %}
+            Pago mínimo
+        {% else %}
+            Pago parcial
+        {% endif %}
+    </p>
+
+    <p><strong>Importe abonado en pesos (ARS):</strong>
+        $ {{ pago.monto_pago }}
+    </p>
+
+    <p><strong>Importe abonado en dólares (USD):</strong>
+        USD {{ pago.monto_pago_dolares }}
+    </p>
+
+    <hr>
+
+    <p>
+        <a href="{% url 'ver_resumenes' %}">
+            Volver a mis resúmenes
+        </a>
+    </p>
+
+</body>
+</html>

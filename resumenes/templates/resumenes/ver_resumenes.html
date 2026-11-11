@@ -4,91 +4,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlDía | Ver resúmenes</title>
+    <title>AlDía | Mis resúmenes</title>
 </head>
 <body>
 
     <h1>Mis resúmenes</h1>
 
-    {% if resumenes %}
-        <table border="1" cellpadding="10">
-            <thead>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Tarjeta</th>
+                <th>Próximo cierre</th>
+                <th>Vencimiento actual</th>
+                <th>Próximo vencimiento</th>
+                <th>Total ARS</th>
+                <th>Mínimo ARS</th>
+                <th>Total USD</th>
+                <th>Mínimo USD</th>
+                <th>Estado del pago</th>
+                <th>Fecha de pago</th>
+                <th>Abonado en pesos (ARS)</th>
+                <th>Abonado en dólares (USD)</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for resumen in resumenes %}
                 <tr>
-                    <th>Tarjeta</th>
-                    <th>Próximo cierre</th>
-                    <th>Vencimiento actual</th>
-                    <th>Próximo vencimiento</th>
-                    <th>Total en pesos (ARS)</th>
-                    <th>Mínimo en pesos (ARS)</th>
-                    <th>Total en dólares (USD)</th>
-                    <th>Mínimo en dólares (USD)</th>
+                    <td>{{ resumen.identificacion_tarjeta }}</td>
+
+                    <td>
+                        {{ resumen.fecha_proximo_cierre|date:"d/m/Y"|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ resumen.fecha_vencimiento|date:"d/m/Y"|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ resumen.fecha_proximo_vencimiento|date:"d/m/Y"|default:"-" }}
+                    </td>
+
+                    <td>
+                        $ {{ resumen.monto_total_pesos|default:"0" }}
+                    </td>
+
+                    <td>
+                        $ {{ resumen.monto_minimo_pesos|default:"0" }}
+                    </td>
+
+                    <td>
+                        USD {{ resumen.monto_total_dolares|default:"0" }}
+                    </td>
+
+                    <td>
+                        USD {{ resumen.monto_minimo_dolares|default:"0" }}
+                    </td>
+
+                    <td>
+                        {% if resumen.pago %}
+                            {% if resumen.pago.tipo_pago == "total" %}
+                                Pagado - Pago total
+                            {% elif resumen.pago.tipo_pago == "minimo" %}
+                                Pagado - Pago mínimo
+                            {% elif resumen.pago.tipo_pago == "otro" %}
+                                Pagado - Pago parcial
+                            {% endif %}
+                        {% else %}
+                            Pendiente
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if resumen.pago %}
+                            {{ resumen.pago.fecha_pago|date:"d/m/Y" }}
+                        {% else %}
+                            Sin pago registrado
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if resumen.pago %}
+                            $ {{ resumen.pago.monto_pago }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if resumen.pago %}
+                            USD {{ resumen.pago.monto_pago_dolares }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if resumen.pago %}
+                            <a href="{% url 'modificar_pago' resumen.id %}">
+                                Modificar pago
+                            </a>
+                        {% else %}
+                            <a href="{% url 'registrar_pago' resumen.id %}">
+                                Registrar pago
+                            </a>
+                        {% endif %}
+                    </td>
                 </tr>
-            </thead>
-
-            <tbody>
-                {% for resumen in resumenes %}
-                    <tr>
-                        <td>{{ resumen.identificacion_tarjeta }}</td>
-
-                        <td>{{ resumen.fecha_cierre|date:"d/m/Y" }}</td>
-
-                        <td>{{ resumen.fecha_vencimiento|date:"d/m/Y" }}</td>
-
-                        <td>
-                            {% if resumen.fecha_proximo_vencimiento %}
-                                {{ resumen.fecha_proximo_vencimiento|date:"d/m/Y" }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if resumen.monto_total_pesos != None %}
-                                $ {{ resumen.monto_total_pesos }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if resumen.monto_minimo_pesos != None %}
-                                $ {{ resumen.monto_minimo_pesos }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if resumen.monto_total_dolares != None %}
-                                US$ {{ resumen.monto_total_dolares }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if resumen.monto_minimo_dolares != None %}
-                                US$ {{ resumen.monto_minimo_dolares }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    {% else %}
-        <p>Todavía no tenés resúmenes registrados.</p>
-    {% endif %}
-
-    <p>
-        <a href="{% url 'registrar_resumen' %}">Registrar otro resumen</a>
-    </p>
-
-    <p>
-        <a href="{% url 'inicio' %}">Volver al inicio</a>
-    </p>
-
+            {% empty %}
+                <tr>
+                    <td colspan="13">
+                        Todavía no tenés resúmenes registrados.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+                 <p>
+                    <a href="{% url 'inicio' %}">Volver al inicio</a>
+                 </p>
+                 
+                 <p>
+                    <a href="{% url 'cuotas_pendientes' %}">Consultar cuotas pendientes</a>
+                 </p>
 </body>
 </html>

@@ -71,9 +71,24 @@ class Resumen(models.Model):
         )
 
 
+
 class Pago(models.Model):
     fecha_pago = models.DateField()
-    monto_pago = models.DecimalField(max_digits=12, decimal_places=2)
+
+    # Importe abonado en pesos
+    monto_pago = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    # Importe abonado en dólares
+    monto_pago_dolares = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
     tipo_pago = models.CharField(max_length=10)
 
     resumen = models.OneToOneField(
@@ -83,7 +98,8 @@ class Pago(models.Model):
     )
 
     def __str__(self):
-        return f"Pago de {self.monto_pago} - {self.fecha_pago}"
+        return f"Pago de ${self.monto_pago} - USD {self.monto_pago_dolares} - {self.fecha_pago}"
+
 
 
 class Cuota(models.Model):

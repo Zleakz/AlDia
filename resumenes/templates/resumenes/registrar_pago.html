@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Registrar pago</title>
+</head>
+<body>
+    <h1>Registrar pago</h1>
+
+    <h2>{{ resumen.identificacion_tarjeta }}</h2>
+
+    <h3>Datos del resumen</h3>
+
+    <p>Vencimiento: {{ resumen.fecha_vencimiento|date:"d/m/Y" }}</p>
+    <p>Total en pesos: $ {{ resumen.monto_total_pesos }}</p>
+    <p>Mínimo en pesos: $ {{ resumen.monto_minimo_pesos }}</p>
+    <p>Total en dólares: USD {{ resumen.monto_total_dolares }}</p>
+    <p>Mínimo en dólares: USD {{ resumen.monto_minimo_dolares }}</p>
+
+    <hr>
+
+    <h3>Datos del pago</h3>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>{{ form.fecha_pago.label_tag }} {{ form.fecha_pago }}</p>
+        <p>{{ form.tipo_pago.label_tag }} {{ form.tipo_pago }}</p>
+        <p>{{ form.monto_pago.label_tag }} {{ form.monto_pago }}</p>
+        <p>{{ form.monto_pago_dolares.label_tag }} {{ form.monto_pago_dolares }}</p>
+
+        <button type="submit">Guardar pago</button>
+    </form>
+
+    <p>
+        <a href="{% url 'ver_resumenes' %}">Volver a mis resúmenes</a>
+    </p>
+
+    <div
+    id="datos-resumen"
+    data-total-pesos="{{ resumen.monto_total_pesos|default_if_none:0 }}"
+    data-minimo-pesos="{{ resumen.monto_minimo_pesos|default_if_none:0 }}"
+    data-total-dolares="{{ resumen.monto_total_dolares|default_if_none:0 }}"
+    data-minimo-dolares="{{ resumen.monto_minimo_dolares|default_if_none:0 }}"
+></div>
+    
+<script>
+    
+
+document.addEventListener("DOMContentLoaded", function () {
+    const tipoPago = document.getElementById("id_tipo_pago");
+    const importePesos = document.getElementById("id_monto_pago");
+    const importeDolares = document.getElementById("id_monto_pago_dolares");
+    const datos = document.getElementById("datos-resumen");
+
+    // Convertimos la coma decimal en punto.
+    function normalizarImporte(valor) {
+        return String(valor).replace(",", ".");
+    }
+
+    const totalPesos = normalizarImporte(datos.dataset.totalPesos);
+    const minimoPesos = normalizarImporte(datos.dataset.minimoPesos);
+    const totalDolares = normalizarImporte(datos.dataset.totalDolares);
+    const minimoDolares = normalizarImporte(datos.dataset.minimoDolares);
+
+    function actualizarImportes() {
+        if (tipoPago.value === "total") {
+            importePesos.value = totalPesos;
+            importeDolares.value = totalDolares;
+        } 
+        else if (tipoPago.value === "minimo") {
+            importePesos.value = minimoPesos;
+            importeDolares.value = minimoDolares;
+        } 
+        else if (tipoPago.value === "otro") {
+            importePesos.value = "";
+            importeDolares.value = "";
+        }
+    }
+
+    tipoPago.addEventListener("change", actualizarImportes);
+    
+});
+
+
+</script>
+
+</body>
+</html>

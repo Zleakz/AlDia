@@ -7,7 +7,7 @@ def extraer_texto_pdf(archivo, contrasena=None):
     if lector.is_encrypted:
         if not contrasena:
             raise ValueError(
-                "Este PDF está protegido y necesita una contraseña."
+                "Este PDF está protegido y necesita una contraseña (Suele ser su DNI sin puntos.)."
             )
 
         resultado = lector.decrypt(contrasena)

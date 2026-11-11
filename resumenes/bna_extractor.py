@@ -47,17 +47,22 @@ def extraer_fechas_bna(texto):
         "fecha_estado_cuenta": (
             r"Estado de cuenta al\s*:\s*(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
+
         "fecha_vencimiento": (
+            r"(?:Vencimiento actual\s*:\s*|"
             r"VENCIMIENTO\s+SALDO\s+\$\s+SALDO\s+U\$S\s+"
-            r"PAGO MIN\.\s+\$\s+PAGO MIN\.\s+U\$S\s+"
-            r"(\d{2}\s+[A-Za-z]{3}\s+\d{2})"
+            r"PAGO\s+MIN\.\s+\$\s+PAGO\s+MIN\.\s+U\$S\s+)"
+            r"(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
+
         "cierre_anterior": (
             r"Cierre Anterior\s*:?\s*(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
+
         "fecha_proximo_cierre": (
             r"Pr[oó]ximo Cierre\s*:?\s*(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
         ),
+
         "fecha_proximo_vencimiento": (
             r"(?:Pr[oó]ximo Vencimiento|Pr[oó]ximo Vto\.?)\s*:?\s*"
             r"(\d{2}[- ]?[A-Za-z]{3}[- ]?\d{2})"
@@ -76,7 +81,6 @@ def extraer_fechas_bna(texto):
             fechas[campo] = None
 
     return fechas
-
 
 
 
@@ -169,3 +173,110 @@ def extraer_resumen_bna(texto):
     }
 
     return datos
+
+
+
+def extraer_cuotas_visa(texto):
+    cuotas = []
+
+    patron = (
+        r"(?P<fecha>\d{2}\.\d{2}\.\d{2})\s+"
+        r"(?P<operacion>\d{6})\s+"
+        r"(?P<descripcion>.*?)\s+"
+        r"C\.(?P<numero>\d{2})/(?P<total>\d{2})\s+"
+        r"(?P<importe>[\d.]+,\d{2})"
+    )
+
+    for linea in texto.splitlines():
+        resultado = re.search(patron, linea, re.IGNORECASE)
+
+        if resultado:
+            numero = int(resultado.group("numero"))
+            total = int(resultado.group("total"))
+
+            fecha_texto = resultado.group("fecha")
+            dia, mes, anio = fecha_texto.split(".")
+
+            fecha = date(
+                2000 + int(anio),
+                int(mes),
+                int(dia)
+            )
+
+            cuotas.append({
+                "fecha_compra": fecha,
+                "numero_operacion": resultado.group("operacion"),
+                "descripcion_compra": resultado.group("descripcion").strip(),
+                "numero_cuota": numero,
+                "total_cuotas": total,
+                "monto_cuota": convertir_importe(resultado.group("importe")),
+                "cuotas_restantes": total - numero,
+            })
+
+    return cuotas
+
+
+def extraer_cuotas_mastercard(texto):
+    cuotas = []
+    dentro_cuotas = False
+
+    patron = (
+        r"(?P<fecha>\d{2}-[A-Za-z]{3}-\d{2})\s+"
+        r"(?P<descripcion>.*?)\s+"
+        r"(?P<numero>\d{2})/(?P<total>\d{2})\s+"
+        r"(?P<operacion>\d{5})\s+"
+        r"(?P<importe>[\d.]+,\d{2})"
+    )
+
+    for linea in texto.splitlines():
+
+        if "CUOTAS DEL MES" in linea.upper():
+            dentro_cuotas = True
+            continue
+
+        if "COMPRAS DEL MES" in linea.upper():
+            dentro_cuotas = False
+            continue
+
+        if not dentro_cuotas:
+            continue
+
+        resultado = re.search(patron, linea, re.IGNORECASE)
+
+        if resultado:
+            numero = int(resultado.group("numero"))
+            total = int(resultado.group("total"))
+
+            cuotas.append({
+                "fecha_compra": convertir_fecha(
+                    resultado.group("fecha")
+                ),
+                "numero_operacion": resultado.group("operacion"),
+                "descripcion_compra": resultado.group("descripcion").strip(),
+                "numero_cuota": numero,
+                "total_cuotas": total,
+                "monto_cuota": convertir_importe(
+                    resultado.group("importe")
+                ),
+                "cuotas_restantes": total - numero,
+            })
+
+    return cuotas
+
+
+def extraer_cuotas_bna(texto):
+    tarjeta = extraer_tarjeta_bna(texto)
+
+    if tarjeta is None:
+        raise ValueError("No se pudo identificar la tarjeta.")
+
+    if tarjeta.startswith("VISA"):
+        return extraer_cuotas_visa(texto)
+
+    if tarjeta.startswith("MASTERCARD"):
+        return extraer_cuotas_mastercard(texto)
+
+    raise ValueError(f"Tarjeta no soportada: {tarjeta}")
+
+
+

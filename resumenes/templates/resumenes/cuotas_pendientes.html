@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Cuotas pendientes</title>
+</head>
+<body>
+
+    <h1>Mis cuotas pendientes</h1>
+
+    {% if cuotas %}
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Compra</th>
+                    <th>Tarjeta</th>
+                    <th>Banco</th>
+                    <th>Cuota</th>
+                    <th>Importe</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for cuota in cuotas %}
+                    <tr>
+                        <td>{{ cuota.descripcion_compra }}</td>
+                        <td>{{ cuota.resumen.identificacion_tarjeta }}</td>
+                        <td>{{ cuota.resumen.banco }}</td>
+                        <td>{{ cuota.numero_cuota }}/{{ cuota.total_cuotas }}</td>
+                        <td>$ {{ cuota.monto_cuota }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>No tenés cuotas registradas.</p>
+    {% endif %}
+
+    <p>
+        <a href="{% url 'inicio' %}">Volver al inicio</a>
+    </p>
+
+    <p>
+        <a href="{% url 'ver_resumenes' %}">Volver a mis resúmenes</a>
+    </p>
+
+</body>
+</html>
