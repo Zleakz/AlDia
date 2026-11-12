@@ -77,23 +77,23 @@
 <body>
     <header>
         <h1>AlDía</h1>
-        
-<nav>
-    <a href="{% url 'inicio' %}">Inicio</a>
 
-    {% if user.is_authenticated %}
-        <a href="{% url 'registrar_resumen' %}">Registrar resumen</a>
-        <a href="{% url 'cargar_pdf_resumen' %}">Cargar desde PDF</a>
-        <a href="{% url 'ver_resumenes' %}">Ver resúmenes</a>
+        <nav>
+            <a href="{% url 'inicio' %}">Inicio</a>
 
-        <span>Hola, {{ user.username }}</span>
-        <a href="{% url 'logout' %}">Cerrar sesión</a>
-    {% else %}
-        <a href="{% url 'login' %}">Iniciar sesión</a>
-        <a href="{% url 'registro' %}">Registrarse</a>
-    {% endif %}
-</nav>
+            {% if user.is_authenticated %}
+                <a href="{% url 'registrar_resumen' %}">Registrar resumen</a>
+                <a href="{% url 'cargar_pdf_resumen' %}">Cargar desde PDF</a>
+                <a href="{% url 'ver_resumenes' %}">Ver resúmenes</a>
+                <a href="{% url 'comparar_resumenes' %}">Comparar resúmenes</a>
 
+                <span>Hola, {{ user.username }}</span>
+                <a href="{% url 'logout' %}">Cerrar sesión</a>
+            {% else %}
+                <a href="{% url 'login' %}">Iniciar sesión</a>
+                <a href="{% url 'registro' %}">Registrarse</a>
+            {% endif %}
+        </nav>
     </header>
 
     <main>
@@ -127,6 +127,12 @@
                 <h3>Ver resúmenes</h3>
                 <p>Consultá los resúmenes que hayas registrado y sus principales datos.</p>
                 <a class="boton" href="{% url 'ver_resumenes' %}">Consultar</a>
+            </article>
+
+            <article class="tarjeta">
+                <h3>Comparar resúmenes</h3>
+                <p>Compará dos resúmenes de una misma tarjeta y conocé cuánto aumentaron o disminuyeron sus importes.</p>
+                <a class="boton" href="{% url 'comparar_resumenes' %}">Comparar</a>
             </article>
         </section>
     </main>

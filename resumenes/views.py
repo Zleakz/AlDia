@@ -9,6 +9,7 @@ from .forms  import  ResumenForm, PDFUploadForm, PagoForm
 from .models import Resumen, Pago, Cuota
 from .pdf_extractor import extraer_texto_pdf
 from .bna_extractor import extraer_resumen_bna, extraer_cuotas_bna
+from decimal import Decimal
 
 def inicio(request):
     return render(request, "resumenes/inicio.html")
@@ -299,4 +300,95 @@ def cuotas_pendientes(request):
     return render(request, "resumenes/cuotas_pendientes.html", {
         "cuotas": cuotas
     })
+
+
+@login_required
+def comparar_resumenes(request):
+    resumenes = Resumen.objects.filter(
+        usuario=request.user
+    ).order_by("-fecha_vencimiento")
+
+    comparaciones = None
+    error = None
+
+    if request.method == "POST":
+        id_resumen_1 = request.POST.get("resumen_1")
+        id_resumen_2 = request.POST.get("resumen_2")
+
+        resumen_1 = get_object_or_404(
+            Resumen,
+            id=id_resumen_1,
+            usuario=request.user
+        )
+
+        resumen_2 = get_object_or_404(
+            Resumen,
+            id=id_resumen_2,
+            usuario=request.user
+        )
+
+        if resumen_1.id == resumen_2.id:
+            error = "Debés seleccionar dos resúmenes diferentes."
+
+        elif (
+            resumen_1.banco != resumen_2.banco
+            or resumen_1.tipo_tarjeta != resumen_2.tipo_tarjeta
+        ):
+            error = "Los resúmenes deben pertenecer al mismo banco y a la misma tarjeta."
+
+        else:
+            # Identificamos cuál es el resumen anterior y cuál el más reciente.
+            anterior, actual = sorted(
+                [resumen_1, resumen_2],
+                key=lambda resumen: resumen.fecha_vencimiento
+            )
+
+            importes = [
+                ("Total en pesos", "monto_total_pesos"),
+                ("Pago mínimo en pesos", "monto_minimo_pesos"),
+                ("Total en dólares", "monto_total_dolares"),
+                ("Pago mínimo en dólares", "monto_minimo_dolares"),
+            ]
+
+            comparaciones = []
+
+            for concepto, campo in importes:
+                valor_anterior = getattr(anterior, campo) or Decimal("0")
+                valor_actual = getattr(actual, campo) or Decimal("0")
+
+                diferencia = valor_actual - valor_anterior
+
+                if valor_anterior != 0:
+                    porcentaje = (
+                        diferencia / valor_anterior * Decimal("100")
+                    ).quantize(Decimal("0.01"))
+                elif diferencia == 0:
+                    porcentaje = Decimal("0")
+                else:
+                    porcentaje = None
+
+                if diferencia > 0:
+                    estado = "Aumentó"
+                elif diferencia < 0:
+                    estado = "Disminuyó"
+                else:
+                    estado = "Sin cambios"
+
+                comparaciones.append({
+                    "concepto": concepto,
+                    "anterior": valor_anterior,
+                    "actual": valor_actual,
+                    "diferencia": diferencia,
+                    "porcentaje": porcentaje,
+                    "estado": estado,
+                })
+
+    return render(request, "resumenes/comparar_resumenes.html", {
+    "resumenes": resumenes,
+    "comparaciones": comparaciones,
+    "error": error,
+    "anterior": anterior if comparaciones else None,
+    "actual": actual if comparaciones else None,
+})
+
 
