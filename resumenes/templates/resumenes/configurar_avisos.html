@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlDía | Configurar avisos</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        main {
+            max-width: 650px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .opcion {
+            margin: 18px 0;
+        }
+
+        .mensaje-exito {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #176b45;
+            color: white;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #105536;
+        }
+
+        a {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>AlDía | Configurar avisos</h1>
+        <a href="{% url 'inicio' %}">Volver al inicio</a>
+    </header>
+
+    <main>
+        <section class="tarjeta">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'success' %}mensaje-exito{% else %}mensaje-error{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <h2>Preferencias de notificaciones</h2>
+
+            <p>
+                Elegí con cuántos días de anticipación
+                querés recibir avisos antes del vencimiento.
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% for checkbox in form.dias_anticipacion %}
+                    <div class="opcion">
+                        {{ checkbox.tag }}
+                        {{ checkbox.choice_label }}
+                    </div>
+                {% endfor %}
+
+                <button type="submit">Guardar preferencias</button>
+            </form>
+
+        </section>
+    </main>
+</body>
+</html>

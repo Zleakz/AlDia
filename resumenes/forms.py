@@ -1,6 +1,7 @@
 
 from django import forms
-from .models import Resumen, Pago
+from .models import Resumen, Pago, PreferenciasAviso
+
 
 
 class ResumenForm(forms.ModelForm):
@@ -20,7 +21,7 @@ class ResumenForm(forms.ModelForm):
         ]
 
         labels = {
-            "identificacion_tarjeta": "Nombre de la tarjeta",
+            "identificacion_tarjeta": "Nombre del resumen",
             "banco": "Banco",
             "tipo_tarjeta": "Tipo de tarjeta",
             "fecha_cierre": "Próximo cierre",
@@ -92,3 +93,31 @@ class PagoForm(forms.ModelForm):
                 ]
             ),
         }
+
+    
+class PreferenciasAvisoForm(forms.ModelForm):
+
+    DIAS_CHOICES = [
+        (10, "10 días antes"),
+        (5, "5 días antes"),
+        (3, "3 días antes"),
+        (1, "1 día antes"),
+    ]
+
+    dias_anticipacion = forms.MultipleChoiceField(
+        choices=DIAS_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="¿Cuándo querés recibir avisos?"
+    )
+
+    class Meta:
+        model = PreferenciasAviso
+        fields = ["dias_anticipacion"]
+
+    def clean_dias_anticipacion(self):
+        return [
+            int(dia)
+            for dia in self.cleaned_data["dias_anticipacion"]
+        ]
+    

@@ -119,3 +119,16 @@ class Cuota(models.Model):
             f"{self.descripcion_compra} - "
             f"Cuota {self.numero_cuota}/{self.total_cuotas}"
         )
+
+    
+class PreferenciasAviso(models.Model):
+    usuario = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="preferencias_aviso"
+    )
+
+    dias_anticipacion = models.JSONField(default=list)
+
+    def __str__(self):
+        return f"Preferencias de avisos de {self.usuario.username}"

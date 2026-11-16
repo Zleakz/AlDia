@@ -5,128 +5,350 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlDía | Mis resúmenes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        nav {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 45px auto;
+            padding: 0 20px;
+        }
+
+        .contenedor {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 26px;
+        }
+
+        .descripcion {
+            color: #66736b;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e1e8e3;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1300px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #176b45;
+            color: white;
+        }
+
+        th {
+            padding: 15px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e8eee9;
+            white-space: nowrap;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f4f7f5;
+        }
+
+        tbody tr:hover {
+            background-color: #eaf3ed;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pagado {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .accion {
+            display: inline-block;
+            background-color: #176b45;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .accion:hover {
+            background-color: #105536;
+        }
+
+        .sin-resumenes {
+            padding: 25px;
+            text-align: center;
+            color: #66736b;
+        }
+
+        .enlaces {
+            margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .enlaces a {
+            color: #176b45;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .enlaces a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 20px;
+            }
+
+            main {
+                margin: 25px auto;
+            }
+
+            .contenedor {
+                padding: 18px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>Mis resúmenes</h1>
+    <header>
+        <h1>AlDía</h1>
 
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Tarjeta</th>
-                <th>Próximo cierre</th>
-                <th>Vencimiento actual</th>
-                <th>Próximo vencimiento</th>
-                <th>Total ARS</th>
-                <th>Mínimo ARS</th>
-                <th>Total USD</th>
-                <th>Mínimo USD</th>
-                <th>Estado del pago</th>
-                <th>Fecha de pago</th>
-                <th>Abonado en pesos (ARS)</th>
-                <th>Abonado en dólares (USD)</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
+        <nav>
+            <a href="{% url 'inicio' %}">Inicio</a>
+            <a href="{% url 'registrar_resumen' %}">Registrar resumen</a>
+            <a href="{% url 'cargar_pdf_resumen' %}">Cargar desde PDF</a>
+            <a href="{% url 'ver_resumenes' %}">Ver resúmenes</a>
+            <a href="{% url 'configurar_avisos' %}">Configurar avisos</a>
+            <a href="{% url 'comparar_resumenes' %}">Comparar resúmenes</a>
+        </nav>
+    </header>
 
-        <tbody>
-            {% for resumen in resumenes %}
-                <tr>
-                    <td>{{ resumen.identificacion_tarjeta }}</td>
+    <main>
 
-                    <td>
-                        {{ resumen.fecha_proximo_cierre|date:"d/m/Y"|default:"-" }}
-                    </td>
+        <section class="contenedor">
 
-                    <td>
-                        {{ resumen.fecha_vencimiento|date:"d/m/Y"|default:"-" }}
-                    </td>
+            <h2>Mis resúmenes</h2>
 
-                    <td>
-                        {{ resumen.fecha_proximo_vencimiento|date:"d/m/Y"|default:"-" }}
-                    </td>
+            <p class="descripcion">
+                Consultá los resúmenes de tus tarjetas, sus vencimientos
+                y el estado de los pagos registrados.
+            </p>
 
-                    <td>
-                        $ {{ resumen.monto_total_pesos|default:"0" }}
-                    </td>
+            <div class="tabla-contenedor">
 
-                    <td>
-                        $ {{ resumen.monto_minimo_pesos|default:"0" }}
-                    </td>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre del resumen</th>
+                            <th>Próximo cierre</th>
+                            <th>Vencimiento actual</th>
+                            <th>Próximo vencimiento</th>
+                            <th>Total ARS</th>
+                            <th>Mínimo ARS</th>
+                            <th>Total USD</th>
+                            <th>Mínimo USD</th>
+                            <th>Estado del pago</th>
+                            <th>Fecha de pago</th>
+                            <th>Abonado ARS</th>
+                            <th>Abonado USD</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
 
-                    <td>
-                        USD {{ resumen.monto_total_dolares|default:"0" }}
-                    </td>
+                    <tbody>
 
-                    <td>
-                        USD {{ resumen.monto_minimo_dolares|default:"0" }}
-                    </td>
+                        {% for resumen in resumenes %}
 
-                    <td>
-                        {% if resumen.pago %}
-                            {% if resumen.pago.tipo_pago == "total" %}
-                                Pagado - Pago total
-                            {% elif resumen.pago.tipo_pago == "minimo" %}
-                                Pagado - Pago mínimo
-                            {% elif resumen.pago.tipo_pago == "otro" %}
-                                Pagado - Pago parcial
-                            {% endif %}
-                        {% else %}
-                            Pendiente
-                        {% endif %}
-                    </td>
+                            <tr>
+                                <td>
+                                    <strong>{{ resumen.identificacion_tarjeta }}</strong>
+                                </td>
 
-                    <td>
-                        {% if resumen.pago %}
-                            {{ resumen.pago.fecha_pago|date:"d/m/Y" }}
-                        {% else %}
-                            Sin pago registrado
-                        {% endif %}
-                    </td>
+                                <td>
+                                    {{ resumen.fecha_proximo_cierre|date:"d/m/Y"|default:"-" }}
+                                </td>
 
-                    <td>
-                        {% if resumen.pago %}
-                            $ {{ resumen.pago.monto_pago }}
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
+                                <td>
+                                    {{ resumen.fecha_vencimiento|date:"d/m/Y"|default:"-" }}
+                                </td>
 
-                    <td>
-                        {% if resumen.pago %}
-                            USD {{ resumen.pago.monto_pago_dolares }}
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
+                                <td>
+                                    {{ resumen.fecha_proximo_vencimiento|date:"d/m/Y"|default:"-" }}
+                                </td>
 
-                    <td>
-                        {% if resumen.pago %}
-                            <a href="{% url 'modificar_pago' resumen.id %}">
-                                Modificar pago
-                            </a>
-                        {% else %}
-                            <a href="{% url 'registrar_pago' resumen.id %}">
-                                Registrar pago
-                            </a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="13">
-                        Todavía no tenés resúmenes registrados.
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-                 <p>
-                    <a href="{% url 'inicio' %}">Volver al inicio</a>
-                 </p>
-                 
-                 <p>
-                    <a href="{% url 'cuotas_pendientes' %}">Consultar cuotas pendientes</a>
-                 </p>
+                                <td>
+                                    $ {{ resumen.monto_total_pesos|default:"0" }}
+                                </td>
+
+                                <td>
+                                    $ {{ resumen.monto_minimo_pesos|default:"0" }}
+                                </td>
+
+                                <td>
+                                    USD {{ resumen.monto_total_dolares|default:"0" }}
+                                </td>
+
+                                <td>
+                                    USD {{ resumen.monto_minimo_dolares|default:"0" }}
+                                </td>
+
+                                <td>
+                                    {% if resumen.pago %}
+                                        {% if resumen.pago.tipo_pago == "total" %}
+                                            <span class="estado pagado">Pagado - Total</span>
+                                        {% elif resumen.pago.tipo_pago == "minimo" %}
+                                            <span class="estado pagado">Pagado - Mínimo</span>
+                                        {% elif resumen.pago.tipo_pago == "otro" %}
+                                            <span class="estado pagado">Pagado - Parcial</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="estado pendiente">Pendiente</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resumen.pago %}
+                                        {{ resumen.pago.fecha_pago|date:"d/m/Y" }}
+                                    {% else %}
+                                        Sin pago registrado
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resumen.pago %}
+                                        $ {{ resumen.pago.monto_pago }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resumen.pago %}
+                                        USD {{ resumen.pago.monto_pago_dolares }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if resumen.pago %}
+                                        <a class="accion" href="{% url 'modificar_pago' resumen.id %}">
+                                            Modificar pago
+                                        </a>
+                                    {% else %}
+                                        <a class="accion" href="{% url 'registrar_pago' resumen.id %}">
+                                            Registrar pago
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="13" class="sin-resumenes">
+                                    Todavía no tenés resúmenes registrados.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="enlaces">
+                <a href="{% url 'inicio' %}">← Volver al inicio</a>
+
+                <a href="{% url 'cuotas_pendientes' %}">
+                    Consultar cuotas pendientes →
+                </a>
+            </div>
+
+        </section>
+
+    </main>
+
 </body>
 </html>

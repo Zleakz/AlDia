@@ -1,51 +1,217 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlDía | Cuotas pendientes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 24px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .contenedor {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        .tarjeta h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 23px;
+        }
+
+        .descripcion {
+            color: #66736b;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #176b45;
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5ebe7;
+        }
+
+        th {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8faf9;
+        }
+
+        tbody tr:hover {
+            background-color: #edf5f0;
+        }
+
+        .importe {
+            font-weight: bold;
+            color: #176b45;
+            white-space: nowrap;
+        }
+
+        .mensaje-vacio {
+            background-color: #f4f7f5;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            color: #66736b;
+            margin-top: 25px;
+        }
+
+        .navegacion {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .navegacion a {
+            display: inline-block;
+            padding: 11px 18px;
+            background-color: #176b45;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .navegacion a:hover {
+            background-color: #105536;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 22px;
+            }
+
+            .contenedor {
+                margin: 25px auto;
+            }
+
+            .tarjeta {
+                padding: 20px;
+            }
+
+            .navegacion {
+                flex-direction: column;
+            }
+
+            .navegacion a {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>Mis cuotas pendientes</h1>
+    <header>
+        <h1>Mis cuotas pendientes</h1>
+    </header>
 
-    {% if cuotas %}
-        <table border="1" cellpadding="8" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Compra</th>
-                    <th>Tarjeta</th>
-                    <th>Banco</th>
-                    <th>Cuota</th>
-                    <th>Importe</th>
-                </tr>
-            </thead>
+    <main class="contenedor">
+        <section class="tarjeta">
 
-            <tbody>
-                {% for cuota in cuotas %}
-                    <tr>
-                        <td>{{ cuota.descripcion_compra }}</td>
-                        <td>{{ cuota.resumen.identificacion_tarjeta }}</td>
-                        <td>{{ cuota.resumen.banco }}</td>
-                        <td>{{ cuota.numero_cuota }}/{{ cuota.total_cuotas }}</td>
-                        <td>$ {{ cuota.monto_cuota }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            <h2>Cuotas pendientes</h2>
+            <p class="descripcion">
+                Consultá las compras que todavía tienen cuotas por pagar.
+            </p>
 
-    {% else %}
-        <p>No tenés cuotas registradas.</p>
-    {% endif %}
+            {% if cuotas %}
 
-    <p>
-        <a href="{% url 'inicio' %}">Volver al inicio</a>
-    </p>
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Compra</th>
+                                <th>Nombre del resumen</th>
+                                <th>Banco</th>
+                                <th>Cuota</th>
+                                <th>Importe</th>
+                            </tr>
+                        </thead>
 
-    <p>
-        <a href="{% url 'ver_resumenes' %}">Volver a mis resúmenes</a>
-    </p>
+                        <tbody>
+                            {% for cuota in cuotas %}
+                                <tr>
+                                    <td>{{ cuota.descripcion_compra }}</td>
+                                    <td>{{ cuota.resumen.identificacion_tarjeta }}</td>
+                                    <td>{{ cuota.resumen.banco }}</td>
+                                    <td>{{ cuota.numero_cuota }}/{{ cuota.total_cuotas }}</td>
+                                    <td class="importe">$ {{ cuota.monto_cuota }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+
+                <div class="mensaje-vacio">
+                    <p>No tenés cuotas registradas.</p>
+                </div>
+
+            {% endif %}
+
+            <nav class="navegacion">
+                <a href="{% url 'inicio' %}">Volver al inicio</a>
+                <a href="{% url 'ver_resumenes' %}">Volver a mis resúmenes</a>
+            </nav>
+
+        </section>
+    </main>
 
 </body>
 </html>

@@ -5,50 +5,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlDía | Confirmación de pago</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 24px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .contenedor {
+            max-width: 750px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        .mensaje-exito {
+            background-color: #edf5f0;
+            border-left: 5px solid #176b45;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 28px;
+        }
+
+        .mensaje-exito h2 {
+            color: #176b45;
+            font-size: 22px;
+            margin: 0 0 10px;
+        }
+
+        .mensaje-exito p {
+            color: #536159;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .titulo-detalle {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .datos-pago {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .dato {
+            background-color: #f8faf9;
+            border: 1px solid #e5ebe7;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        .dato strong {
+            color: #24332b;
+        }
+
+        .importe {
+            color: #176b45;
+            font-weight: bold;
+        }
+
+        .navegacion {
+            margin-top: 28px;
+        }
+
+        .boton-volver {
+            display: inline-block;
+            background-color: #176b45;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .boton-volver:hover {
+            background-color: #105536;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 22px;
+            }
+
+            .contenedor {
+                margin: 25px auto;
+            }
+
+            .tarjeta {
+                padding: 22px;
+            }
+
+            .mensaje-exito h2 {
+                font-size: 19px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    {% if modificado %}
-        <h1>¡Pago modificado correctamente!</h1>
-        <p>Los cambios se guardaron con éxito.</p>
-    {% else %}
-        <h1>¡Pago registrado correctamente!</h1>
-        <p>El pago se guardó con éxito.</p>
-    {% endif %}
+    <header>
+        <h1>Confirmación de pago</h1>
+    </header>
 
-    <h2>Detalle del pago</h2>
+    <main class="contenedor">
+        <section class="tarjeta">
 
-    <p><strong>Tarjeta:</strong> {{ resumen.identificacion_tarjeta }}</p>
+            <div class="mensaje-exito">
+                {% if modificado %}
+                    <h2>¡Pago modificado correctamente!</h2>
+                    <p>Los cambios se guardaron con éxito.</p>
+                {% else %}
+                    <h2>¡Pago registrado correctamente!</h2>
+                    <p>El pago se guardó con éxito.</p>
+                {% endif %}
+            </div>
 
-    <p><strong>Fecha de pago:</strong>
-        {{ pago.fecha_pago|date:"d/m/Y" }}
-    </p>
+            <h3 class="titulo-detalle">Detalle del pago</h3>
 
-    <p><strong>Tipo de pago:</strong>
-        {% if pago.tipo_pago == "total" %}
-            Pago total
-        {% elif pago.tipo_pago == "minimo" %}
-            Pago mínimo
-        {% else %}
-            Pago parcial
-        {% endif %}
-    </p>
+            <div class="datos-pago">
 
-    <p><strong>Importe abonado en pesos (ARS):</strong>
-        $ {{ pago.monto_pago }}
-    </p>
+                <div class="dato">
+                    <strong>Nombre del resumen:</strong>
+                    {{ resumen.identificacion_tarjeta }}
+                </div>
 
-    <p><strong>Importe abonado en dólares (USD):</strong>
-        USD {{ pago.monto_pago_dolares }}
-    </p>
+                <div class="dato">
+                    <strong>Fecha de pago:</strong>
+                    {{ pago.fecha_pago|date:"d/m/Y" }}
+                </div>
 
-    <hr>
+                <div class="dato">
+                    <strong>Tipo de pago:</strong>
+                    {% if pago.tipo_pago == "total" %}
+                        Pago total
+                    {% elif pago.tipo_pago == "minimo" %}
+                        Pago mínimo
+                    {% else %}
+                        Pago parcial
+                    {% endif %}
+                </div>
 
-    <p>
-        <a href="{% url 'ver_resumenes' %}">
-            Volver a mis resúmenes
-        </a>
-    </p>
+                <div class="dato">
+                    <strong>Importe abonado en pesos (ARS):</strong>
+                    <span class="importe">$ {{ pago.monto_pago }}</span>
+                </div>
+
+                <div class="dato">
+                    <strong>Importe abonado en dólares (USD):</strong>
+                    <span class="importe">USD {{ pago.monto_pago_dolares }}</span>
+                </div>
+
+            </div>
+
+            <div class="navegacion">
+                <a class="boton-volver" href="{% url 'ver_resumenes' %}">
+                    Volver a mis resúmenes
+                </a>
+            </div>
+
+        </section>
+    </main>
 
 </body>
 </html>

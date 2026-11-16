@@ -5,29 +5,238 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlDía | Registrar resumen</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        nav {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 850px;
+            margin: 45px auto;
+            padding: 0 20px;
+        }
+
+        .contenedor {
+            background-color: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 26px;
+        }
+
+        .descripcion {
+            color: #66736b;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .mensaje-exito {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        form p {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        form label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        form input,
+        form select,
+        form textarea {
+            width: 100%;
+            max-width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #ced8d1;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #24332b;
+            background-color: white;
+        }
+
+        form input:focus,
+        form select:focus,
+        form textarea:focus {
+            outline: none;
+            border-color: #176b45;
+            box-shadow: 0 0 0 2px rgba(23, 107, 69, 0.12);
+        }
+
+        .ayuda {
+            color: #66736b;
+            font-size: 12px;
+        }
+
+        .errores {
+            color: #b02a37;
+            font-size: 13px;
+        }
+
+        .boton {
+            display: inline-block;
+            background-color: #176b45;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .boton:hover {
+            background-color: #105536;
+        }
+
+        .volver {
+            display: inline-block;
+            margin-top: 22px;
+            color: #176b45;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .volver:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 20px;
+            }
+
+            main {
+                margin: 25px auto;
+            }
+
+            .contenedor {
+                padding: 22px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>Registrar resumen</h1>
+    <header>
+        <h1>AlDía</h1>
 
-    {% if datos_extraidos %}
-        <p>
-            Los datos se extrajeron correctamente del PDF.
-            Revisalos y completá el nombre de la tarjeta antes de guardar.
-        </p>
-    {% endif %}
+        <nav>
+            <a href="{% url 'inicio' %}">Inicio</a>
+            <a href="{% url 'registrar_resumen' %}">Registrar resumen</a>
+            <a href="{% url 'cargar_pdf_resumen' %}">Cargar desde PDF</a>
+            <a href="{% url 'ver_resumenes' %}">Ver resúmenes</a>
+            <a href="{% url 'configurar_avisos' %}">Configurar avisos</a>
+            <a href="{% url 'comparar_resumenes' %}">Comparar resúmenes</a>
+        </nav>
+    </header>
 
-    <form method="post" action="{% url 'registrar_resumen' %}">
-        {% csrf_token %}
+    <main>
 
-        {{ form.as_p }}
+        <section class="contenedor">
 
-        <button type="submit">Guardar resumen</button>
-    </form>
+            <h2>Registrar resumen</h2>
 
-    <p>
-        <a href="{% url 'inicio' %}">Volver al inicio</a>
-    </p>
+            <p class="descripcion">
+                Completá los datos de tu tarjeta para registrar un nuevo resumen.
+            </p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="mensaje-exito">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            {% if datos_extraidos %}
+                <div class="mensaje-exito">
+                    Los datos se extrajeron correctamente del PDF.
+                    Revisalos y completá el nombre del resumen antes de guardar.
+                </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="mensaje-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'registrar_resumen' %}">
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <button type="submit" class="boton">
+                    Guardar resumen
+                </button>
+            </form>
+
+            <a class="volver" href="{% url 'inicio' %}">
+                ← Volver al inicio
+            </a>
+
+        </section>
+
+    </main>
 
 </body>
 </html>

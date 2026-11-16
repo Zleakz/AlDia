@@ -5,87 +5,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlDía | Registrar pago</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f5;
+            color: #24332b;
+        }
+
+        header {
+            background-color: #176b45;
+            color: white;
+            padding: 24px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .contenedor {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        .identificacion-resumen {
+            background-color: #edf5f0;
+            border-left: 5px solid #176b45;
+            padding: 18px 22px;
+            border-radius: 8px;
+            margin-bottom: 28px;
+        }
+
+        .identificacion-resumen small {
+            color: #66736b;
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .identificacion-resumen h2 {
+            margin: 10px 0;
+            color: #176b45;
+            font-size: 24px;
+        }
+
+        .identificacion-resumen p {
+            margin: 0;
+            color: #536159;
+        }
+
+        h3 {
+            font-size: 19px;
+            margin-top: 25px;
+            margin-bottom: 18px;
+        }
+
+        .datos-resumen {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .dato {
+            background-color: #f8faf9;
+            border: 1px solid #e5ebe7;
+            padding: 15px;
+            border-radius: 9px;
+        }
+
+        .dato small {
+            display: block;
+            color: #66736b;
+            margin-bottom: 7px;
+            font-size: 13px;
+        }
+
+        .dato strong {
+            font-size: 16px;
+            color: #24332b;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e5ebe7;
+            margin: 28px 0;
+        }
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        .campo label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .campo input,
+        .campo select {
+            width: 100%;
+            max-width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #cbd5ce;
+            border-radius: 7px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: #24332b;
+        }
+
+        .campo input:focus,
+        .campo select:focus {
+            outline: none;
+            border-color: #176b45;
+            box-shadow: 0 0 0 2px rgba(23, 107, 69, 0.12);
+        }
+
+        button {
+            background-color: #176b45;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #105536;
+        }
+
+        .volver {
+            display: inline-block;
+            margin-top: 22px;
+            color: #176b45;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .volver:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 22px;
+            }
+
+            .contenedor {
+                margin: 25px auto;
+            }
+
+            .tarjeta {
+                padding: 20px;
+            }
+
+            .datos-resumen {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Registrar pago</h1>
 
-    <h2>{{ resumen.identificacion_tarjeta }}</h2>
+    <header>
+        <h1>Registrar pago</h1>
+    </header>
 
-    <h3>Datos del resumen</h3>
+    <main class="contenedor">
+        <section class="tarjeta">
 
-    <p>Vencimiento: {{ resumen.fecha_vencimiento|date:"d/m/Y" }}</p>
-    <p>Total en pesos: $ {{ resumen.monto_total_pesos }}</p>
-    <p>Mínimo en pesos: $ {{ resumen.monto_minimo_pesos }}</p>
-    <p>Total en dólares: USD {{ resumen.monto_total_dolares }}</p>
-    <p>Mínimo en dólares: USD {{ resumen.monto_minimo_dolares }}</p>
+            <div class="identificacion-resumen">
+                <small>ESTÁS REGISTRANDO EL PAGO DE</small>
+                <h2>{{ resumen.identificacion_tarjeta }}</h2>
+                <p>Vencimiento: {{ resumen.fecha_vencimiento|date:"d/m/Y" }}</p>
+            </div>
 
-    <hr>
+            <h3>Datos del resumen</h3>
 
-    <h3>Datos del pago</h3>
+            <div class="datos-resumen">
+                <div class="dato">
+                    <small>Vencimiento</small>
+                    <strong>{{ resumen.fecha_vencimiento|date:"d/m/Y" }}</strong>
+                </div>
 
-    <form method="POST">
-        {% csrf_token %}
+                <div class="dato">
+                    <small>Total en pesos</small>
+                    <strong>$ {{ resumen.monto_total_pesos }}</strong>
+                </div>
 
-        <p>{{ form.fecha_pago.label_tag }} {{ form.fecha_pago }}</p>
-        <p>{{ form.tipo_pago.label_tag }} {{ form.tipo_pago }}</p>
-        <p>{{ form.monto_pago.label_tag }} {{ form.monto_pago }}</p>
-        <p>{{ form.monto_pago_dolares.label_tag }} {{ form.monto_pago_dolares }}</p>
+                <div class="dato">
+                    <small>Mínimo en pesos</small>
+                    <strong>$ {{ resumen.monto_minimo_pesos }}</strong>
+                </div>
 
-        <button type="submit">Guardar pago</button>
-    </form>
+                <div class="dato">
+                    <small>Total en dólares</small>
+                    <strong>USD {{ resumen.monto_total_dolares }}</strong>
+                </div>
 
-    <p>
-        <a href="{% url 'ver_resumenes' %}">Volver a mis resúmenes</a>
-    </p>
+                <div class="dato">
+                    <small>Mínimo en dólares</small>
+                    <strong>USD {{ resumen.monto_minimo_dolares }}</strong>
+                </div>
+            </div>
+
+            <hr>
+
+            <h3>Datos del pago</h3>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="campo">
+                    {{ form.fecha_pago.label_tag }}
+                    {{ form.fecha_pago }}
+                </div>
+
+                <div class="campo">
+                    {{ form.tipo_pago.label_tag }}
+                    {{ form.tipo_pago }}
+                </div>
+
+                <div class="campo">
+                    {{ form.monto_pago.label_tag }}
+                    {{ form.monto_pago }}
+                </div>
+
+                <div class="campo">
+                    {{ form.monto_pago_dolares.label_tag }}
+                    {{ form.monto_pago_dolares }}
+                </div>
+
+                <button type="submit">Guardar pago</button>
+            </form>
+
+            <a class="volver" href="{% url 'ver_resumenes' %}">
+                ← Volver a mis resúmenes
+            </a>
+
+        </section>
+    </main>
 
     <div
-    id="datos-resumen"
-    data-total-pesos="{{ resumen.monto_total_pesos|default_if_none:0 }}"
-    data-minimo-pesos="{{ resumen.monto_minimo_pesos|default_if_none:0 }}"
-    data-total-dolares="{{ resumen.monto_total_dolares|default_if_none:0 }}"
-    data-minimo-dolares="{{ resumen.monto_minimo_dolares|default_if_none:0 }}"
-></div>
-    
-<script>
-    
+        id="datos-resumen"
+        data-total-pesos="{{ resumen.monto_total_pesos|default_if_none:0 }}"
+        data-minimo-pesos="{{ resumen.monto_minimo_pesos|default_if_none:0 }}"
+        data-total-dolares="{{ resumen.monto_total_dolares|default_if_none:0 }}"
+        data-minimo-dolares="{{ resumen.monto_minimo_dolares|default_if_none:0 }}"
+    ></div>
 
-document.addEventListener("DOMContentLoaded", function () {
-    const tipoPago = document.getElementById("id_tipo_pago");
-    const importePesos = document.getElementById("id_monto_pago");
-    const importeDolares = document.getElementById("id_monto_pago_dolares");
-    const datos = document.getElementById("datos-resumen");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tipoPago = document.getElementById("id_tipo_pago");
+            const importePesos = document.getElementById("id_monto_pago");
+            const importeDolares = document.getElementById("id_monto_pago_dolares");
+            const datos = document.getElementById("datos-resumen");
 
-    // Convertimos la coma decimal en punto.
-    function normalizarImporte(valor) {
-        return String(valor).replace(",", ".");
-    }
+            // Convertimos la coma decimal en punto.
+            function normalizarImporte(valor) {
+                return String(valor).replace(",", ".");
+            }
 
-    const totalPesos = normalizarImporte(datos.dataset.totalPesos);
-    const minimoPesos = normalizarImporte(datos.dataset.minimoPesos);
-    const totalDolares = normalizarImporte(datos.dataset.totalDolares);
-    const minimoDolares = normalizarImporte(datos.dataset.minimoDolares);
+            const totalPesos = normalizarImporte(datos.dataset.totalPesos);
+            const minimoPesos = normalizarImporte(datos.dataset.minimoPesos);
+            const totalDolares = normalizarImporte(datos.dataset.totalDolares);
+            const minimoDolares = normalizarImporte(datos.dataset.minimoDolares);
 
-    function actualizarImportes() {
-        if (tipoPago.value === "total") {
-            importePesos.value = totalPesos;
-            importeDolares.value = totalDolares;
-        } 
-        else if (tipoPago.value === "minimo") {
-            importePesos.value = minimoPesos;
-            importeDolares.value = minimoDolares;
-        } 
-        else if (tipoPago.value === "otro") {
-            importePesos.value = "";
-            importeDolares.value = "";
-        }
-    }
+            function actualizarImportes() {
+                if (tipoPago.value === "total") {
+                    importePesos.value = totalPesos;
+                    importeDolares.value = totalDolares;
+                }
+                else if (tipoPago.value === "minimo") {
+                    importePesos.value = minimoPesos;
+                    importeDolares.value = minimoDolares;
+                }
+                else if (tipoPago.value === "otro") {
+                    importePesos.value = "";
+                    importeDolares.value = "";
+                }
+            }
 
-    tipoPago.addEventListener("change", actualizarImportes);
-    
-});
+            tipoPago.addEventListener("change", actualizarImportes);
 
-
-</script>
+            actualizarImportes();
+        });
+    </script>
 
 </body>
 </html>

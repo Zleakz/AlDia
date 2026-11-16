@@ -19,7 +19,12 @@ urlpatterns = [
     'resumenes/<int:resumen_id>/pago/modificar/',
     views.modificar_pago,
     name='modificar_pago'
-),
+    ),
+    path(
+    'avisos/configurar/',
+    views.configurar_avisos,
+    name='configurar_avisos'
+    ),
     path('resumenes/cargar-pdf/', views.cargar_pdf_resumen, name='cargar_pdf_resumen'),
     path('registro/', views.registrar_usuario, name='registro'),
     path('login/', views.iniciar_sesion, name='login'),

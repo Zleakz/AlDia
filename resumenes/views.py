@@ -4,15 +4,49 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.utils import timezone
 
-from .forms  import  ResumenForm, PDFUploadForm, PagoForm
-from .models import Resumen, Pago, Cuota
+from .forms  import  ResumenForm, PDFUploadForm, PagoForm, PreferenciasAvisoForm
+from .models import Resumen, Pago, Cuota, PreferenciasAviso
 from .pdf_extractor import extraer_texto_pdf
 from .bna_extractor import extraer_resumen_bna, extraer_cuotas_bna
 from decimal import Decimal
 
+
 def inicio(request):
-    return render(request, "resumenes/inicio.html")
+    avisos = []
+
+    if request.user.is_authenticated:
+        hoy = timezone.localdate()
+
+        preferencias = PreferenciasAviso.objects.filter(
+            usuario=request.user
+        ).first()
+
+        if preferencias:
+            dias_configurados = preferencias.dias_anticipacion
+
+            resumenes = Resumen.objects.filter(
+                usuario=request.user,
+                fecha_vencimiento__gte=hoy
+            ).exclude(pago__isnull=False)
+
+            for resumen in resumenes:
+                dias_restantes = (
+                    resumen.fecha_vencimiento - hoy
+                ).days
+
+                if dias_restantes in dias_configurados:
+                    avisos.append({
+                        "resumen": resumen,
+                        "dias_restantes": dias_restantes
+                    })
+
+    return render(request, "resumenes/inicio.html", {
+        "avisos": avisos,
+        "cantidad_avisos": len(avisos)
+    })
+
 
 
 @login_required
@@ -390,5 +424,36 @@ def comparar_resumenes(request):
     "anterior": anterior if comparaciones else None,
     "actual": actual if comparaciones else None,
 })
+
+
+@login_required
+def configurar_avisos(request):
+    preferencias, creada = PreferenciasAviso.objects.get_or_create(
+        usuario=request.user
+    )
+
+    if request.method == "POST":
+        form = PreferenciasAvisoForm(
+            request.POST,
+            instance=preferencias
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Tus preferencias de avisos se guardaron correctamente."
+            )
+
+            return redirect("configurar_avisos")
+
+    else:
+        form = PreferenciasAvisoForm(instance=preferencias)
+
+    return render(request, "resumenes/configurar_avisos.html", {
+        "form": form
+    })
+
 
 

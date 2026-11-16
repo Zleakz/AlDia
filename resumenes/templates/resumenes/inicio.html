@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,12 +26,19 @@
 
         nav {
             margin-top: 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         nav a {
             color: white;
             text-decoration: none;
-            margin-right: 20px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
         }
 
         main {
@@ -71,10 +79,112 @@
         .boton:hover {
             background-color: #105536;
         }
+
+        /* Notificaciones */
+
+        .notificaciones {
+            position: relative;
+            display: inline-block;
+            flex: 0 0 auto;
+            width: auto;
+        }
+
+        .campanita {
+            cursor: pointer;
+            list-style: none;
+            position: relative;
+            display: inline-block;
+            padding: 3px 8px;
+        }
+
+        .campanita::-webkit-details-marker {
+            display: none;
+        }
+
+        .icono-campana {
+            width: 27px;
+            height: 27px;
+            stroke: white;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            vertical-align: middle;
+        }
+
+        .contador {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            padding: 2px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lista-avisos {
+            position: absolute;
+            top: 38px;
+            left: 0;
+            right: auto;
+            width: 280px;
+            background-color: white;
+            color: #24332b;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .lista-avisos h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .aviso {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .aviso:last-child {
+            border-bottom: none;
+        }
+
+        .enlace-aviso {
+            display: block;
+            color: #24332b;
+            text-decoration: none;
+        }
+
+        .enlace-aviso:hover {
+            color: #176b45;
+        }
+
+        .enlace-aviso span {
+            display: inline-block;
+            margin-top: 5px;
+            color: #176b45;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .sin-avisos {
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 
 <body>
+
     <header>
         <h1>AlDía</h1>
 
@@ -82,21 +192,88 @@
             <a href="{% url 'inicio' %}">Inicio</a>
 
             {% if user.is_authenticated %}
+
                 <a href="{% url 'registrar_resumen' %}">Registrar resumen</a>
                 <a href="{% url 'cargar_pdf_resumen' %}">Cargar desde PDF</a>
                 <a href="{% url 'ver_resumenes' %}">Ver resúmenes</a>
+                <a href="{% url 'configurar_avisos' %}">Configurar avisos</a>
                 <a href="{% url 'comparar_resumenes' %}">Comparar resúmenes</a>
 
+                <details class="notificaciones">
+
+                    <summary class="campanita">
+                        <svg class="icono-campana" viewBox="0 0 24 24">
+                            <path d="M12 2a3 3 0 0 1 3 3v1
+                                    c3 1.2 5 4 5 8v3l2 2H2l2-2v-3
+                                    c0-4 2-6.8 5-8V5a3 3 0 0 1 3-3Z"/>
+                            <path d="M9 21a3 3 0 0 0 6 0"/>
+                        </svg>
+
+                        <span class="contador">
+                            {{ cantidad_avisos|default:0 }}
+                        </span>
+                    </summary>
+
+                    <div class="lista-avisos">
+
+                        <h3>Avisos de vencimiento</h3>
+
+                        {% if avisos %}
+
+                            {% for aviso in avisos %}
+
+                                <div class="aviso">
+
+                                    <a href="{% url 'registrar_pago' aviso.resumen.id %}"
+                                       class="enlace-aviso">
+
+                                        <strong>
+                                            {{ aviso.resumen.identificacion_tarjeta }}
+                                        </strong>
+
+                                        <p>
+                                            {% if aviso.dias_restantes == 1 %}
+                                                Vence mañana.
+                                            {% else %}
+                                                Vence dentro de {{ aviso.dias_restantes }} días.
+                                            {% endif %}
+                                        </p>
+
+                                        <span>Ver y registrar pago →</span>
+
+                                    </a>
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <p class="sin-avisos">
+                                No tenés vencimientos próximos.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </details>
+
                 <span>Hola, {{ user.username }}</span>
+
                 <a href="{% url 'logout' %}">Cerrar sesión</a>
+
             {% else %}
+
                 <a href="{% url 'login' %}">Iniciar sesión</a>
                 <a href="{% url 'registro' %}">Registrarse</a>
+
             {% endif %}
         </nav>
     </header>
 
     <main>
+
         {% if messages %}
             {% for message in messages %}
                 <p style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 6px;">
@@ -111,6 +288,7 @@
         </section>
 
         <section class="opciones">
+
             <article class="tarjeta">
                 <h3>Registrar resumen</h3>
                 <p>Cargá manualmente las fechas de cierre y vencimiento, junto con los importes de tu tarjeta.</p>
@@ -134,7 +312,9 @@
                 <p>Compará dos resúmenes de una misma tarjeta y conocé cuánto aumentaron o disminuyeron sus importes.</p>
                 <a class="boton" href="{% url 'comparar_resumenes' %}">Comparar</a>
             </article>
+
         </section>
     </main>
+
 </body>
 </html>
